@@ -23,10 +23,10 @@ playground.mv.db和playground.trace.db是h2数据库文件;
 
 启动服务端后用浏览器依次打开
 
+http://localhost:8181/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@world@test3_world@yes@test3
+
 http://localhost:8181/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@a@test3_a@yes@test3
 
 http://localhost:8181/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@b@test3_b@yes@test3
-
-http://localhost:8181/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@world@test3_world@yes@test3
 
 即可运行测试场景。
