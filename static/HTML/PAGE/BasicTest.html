@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>综合使用各项技术建立一个可用的应用程序，用尽量少的功能建立可扩展的工作流</title>
+    <link href="../../CSS/newland.css" rel="stylesheet">
+    <script src="../../JS/LIB/oimo.min.js"></script>
+    <script src="../../JS/LIB/babylon.40v.all.max.js"></script>
+</head>
+<body>
+<div id="div_allbase">
+    <canvas id="renderCanvas"></canvas>
+    <div id="fps" style="z-index: 302;"></div>
+
+</div>
+</body>
+<script>
+    //注意idea和webstrom会互相抢端口，先启动的会占用63342端口，后启动的使用63343端口
+    //http://localhost:6334/Community2/HTML/PAGE/EmptyTalk.html
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@a@test2_a@yes@test2
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@b@test2_b@yes@test2
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@world@test2_world@yes@test2
+
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@a@test3_a@yes@test3
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@b@test3_b@yes@test3
+    //http://localhost:63343/Community2/HTML/PAGE/BasicTest.html#127.0.0.1@8181@2323@world@test3_world@yes@test3
+    var VERSION=0.1,AUTHOR="1113908055@qq.com";
+    var machine,canvas,engine,scene,gl,MyGame;
+    canvas = document.getElementById("renderCanvas");
+    engine = new BABYLON.Engine(canvas, true);
+    engine.displayLoadingUI();
+    gl=engine._gl;//决定在这里结合使用原生OpenGL和Babylon.js;
+    scene = new BABYLON.Scene(engine);
+    var divFps = document.getElementById("fps");
+    var serverip,httpport,wsport,userid,UrlHead,WsHead,token,online,pgid;
+    var arr_myunits=[];
+    var arr_webusers=[];
+
+    window.onload=beforewebGL;
+    function beforewebGL()
+    {
+        if(engine._webGLVersion==2.0)//输出ES版本
+        {
+            console.log("ES3.0");
+        }
+        else{
+            console.log("ES2.0");
+        }
+        //从URL获取配置信息
+        var str_hash=window.location.hash.substr(1);//这些信息在open时默认传来传去？
+        var arr_p=str_hash.split("@");
+            serverip=arr_p[0]||"127.0.0.1";
+            httpport=arr_p[1]||"8181";
+            wsport=arr_p[2]||"2323";
+            userid=arr_p[3]||"test";
+            token=arr_p[4]||"test";
+            online=arr_p[5]||"yes";
+            pgid=arr_p[6]||"test";
+
+        UrlHead="http://"+serverip+":"+httpport;
+        WsHead="ws://"+serverip+":"+wsport;//后面没有撇，与Tomcat类似servlet的方式不同，Netty似乎不需要在port后面加其他东西？？！！
+        //token=localStorage.getItem(userid)!=null?localStorage.getItem(userid):"test";//使用本地存储的方式调用token
+
+        MyGame=new Game(0,"first_pick",WsHead,UrlHead,userid,token);
+        //初始化网络，获取用户的身份信息和手牌信息，同时建立ws连接
+        initWs(webGLStart,online);//虽然想要做一个“离线模式”，但卡牌信息都在数据库里管理，不联网怎么取？有其他创新性的持久化方式吗？
+    }
+    function webGLStart()
+    {//是否有必要严格控制初始化流程的同步性？
+        initScene();//初始化基础场景，包括光照、相机对象
+        initArena();//初始化地形，要包括出生点、可放置区域（6*9）
+        initEvent();//初始化事件
+        initUI();//初始化场景UI
+        initObj();//初始化一开始存在的可交互的物体
+        initLoop();//初始化渲染循环
+        MyGame.init_state=1;
+        engine.hideLoadingUI();
+    }
+
+
+
+</script>
+<script src="../../JS/LIB/stat.js"></script>
+<script src="../../JS/MYLIB/Events.js"></script>
+<script src="../../JS/MYLIB/FileText.js"></script>
+<script src="../../JS/MYLIB/newland.js"></script>
+<script src="../../JS/MYLIB/View.js"></script>
+<script src="../../JS/MYLIB/Game.js"></script>
+
+<script src="../../JS/PAGE/BasicTest/WsHandler.js"></script>
+<script src="../../JS/PAGE/BasicTest/BasicTest.js"></script>
+<script src="../../JS/PAGE/BasicTest/FrameGround.js"></script>
+<script src="../../JS/PAGE/BasicTest/Control.js"></script>
+<script src="../../JS/PAGE/BasicTest/FullUI.js"></script>
+<script src="../../JS/PAGE/CHARACTER/CardMesh2.js"></script>
+<script src="../../JS/PAGE/CHARACTER/BallMan.js"></script>
+<script src="../../JS/PAGE/Data/data_skill.js"></script>
+<script src="../../JS/PAGE/Data/rule.js"></script>
+<script src="../../JS/PAGE/CHARACTER/PointStrip.js"></script>
+</html>

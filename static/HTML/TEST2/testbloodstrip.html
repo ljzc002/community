@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试指示条</title>
+    <link href="../../CSS/newland.css" rel="stylesheet">
+    <script src="../../JS/LIB/babylon.40v.all.max.js"></script>
+    <script src="../../JS/MYLIB/newland.js"></script>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <div id="fps" style="z-index: 302;"></div>
+</body>
+<script>
+    var VERSION=1.0,AUTHOR="lz_newland@163.com";
+    var machine,canvas,engine,scene,gl,MyGame;
+    canvas = document.getElementById("renderCanvas");
+    engine = new BABYLON.Engine(canvas, true);
+    engine.displayLoadingUI();
+    gl=engine._gl;//决定在这里结合使用原生OpenGL和Babylon.js;
+    scene = new BABYLON.Scene(engine);
+    var divFps = document.getElementById("fps");
+    var serverip,httpport,wsport,userid,UrlHead,WsHead,token;
+    window.onload=beforewebGL;
+
+    function beforewebGL()
+    {
+        if(engine._webGLVersion==2.0)//输出ES版本
+        {
+            console.log("ES3.0");
+        }
+        else{
+            console.log("ES2.0");
+        }
+
+        webGLStart();
+    }
+
+    var fsUI=BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("ui1");
+
+    function webGLStart()
+    {
+        //光照
+        var light0 = new BABYLON.HemisphericLight("light0", new BABYLON.Vector3(0, 1, 0), scene);
+        light0.diffuse = new BABYLON.Color3(1,1,1);//这道“颜色”是从上向下的，底部收到100%，侧方收到50%，顶部没有
+        light0.specular = new BABYLON.Color3(0,0,0);
+        light0.groundColor = new BABYLON.Color3(1,1,1);//这个与第一道正相反
+
+        camera0= new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 10, -30), scene);
+        camera0.minZ=0.1;
+        camera0.attachControl(canvas,true);
+        scene.activeCameras.push(camera0);
+        mat_green=new BABYLON.StandardMaterial("mat_green", scene);
+        mat_green.diffuseColor = new BABYLON.Color3(0, 1, 0);
+        mat_green.freeze();
+        mat_frame=new BABYLON.StandardMaterial("mat_frame", scene);
+        mat_frame.wireframe=true;
+        mat_frame.freeze();
+
+        //天空盒
+        var skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, scene);
+        var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.disableLighting = true;
+        skybox.material = skyboxMaterial;
+        skybox.infiniteDistance = true;
+        skyboxMaterial.disableLighting = true;
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("../../ASSETS/IMAGE/SKYBOX/skybox", scene);//这里的目录不能更深否则babyljs找不到！！
+        skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        skybox.renderingGroupId = 1;//这个参数使得天空盒处于所有其他元素之外！？
+        skybox.isPickable=false;
+
+        //CreateTorus是环面（有厚度）
+        //CreateTube是管（能拐弯）
+        //CreateRibbon是条带
+        //CreateCylinder是圆柱体
+        var tube_frame=new BABYLON.MeshBuilder.CreateCylinder("tube_frame",{height :10,diameter :1,subdivisions:2 ,tessellation :8},scene);
+        tube_frame.material=mat_frame;
+        tube_frame.rotation.z=Math.PI/2;
+        tube_frame.renderingGroupId=2;
+        var tube_green=new BABYLON.MeshBuilder.CreateCylinder("tube_green",{height :10,diameter :0.8,subdivisions:10 },scene);
+        tube_green.material=mat_green;
+        //tube_green.rotation.z=Math.PI/2;
+        tube_green.parent=tube_frame;
+        tube_green.renderingGroupId=2;
+        MyBeforeRender();
+    }
+    function MyBeforeRender()
+    {
+        scene.registerBeforeRender(
+            function(){
+            }
+        )
+        scene.registerAfterRender(
+            function() {
+            }
+        )
+        engine.runRenderLoop(function () {
+            engine.hideLoadingUI();
+            if (divFps) {
+                // Fps
+                divFps.innerHTML = engine.getFps().toFixed() + " fps";
+            }
+            //lastframe=new Date().getTime();
+            scene.render();
+        });
+    }
+</script>
+</html>

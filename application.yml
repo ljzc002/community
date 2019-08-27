@@ -1,0 +1,18 @@
+server:
+ port: 8181
+debug: false
+netty:
+  host: 127.0.0.1
+  port: 2323
+spring:
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 100MB
+  datasource:
+      url: jdbc:h2:tcp://127.0.0.1/../../playground
+      username: playground
+      password: playground
+      driver-class-name: org.h2.Driver
+      type: com.alibaba.druid.pool.DruidDataSource
+      testWhileIdle: false
